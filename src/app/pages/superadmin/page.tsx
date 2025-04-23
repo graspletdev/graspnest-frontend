@@ -1,13 +1,16 @@
 // src/app/pages/superadmin/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiMenu, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { BsFillBuildingsFill } from 'react-icons/bs';
 import { FaPeopleGroup, FaPeopleRoof } from 'react-icons/fa6';
 import { FaKey } from 'react-icons/fa';
 import { MdSecurity } from 'react-icons/md';
+import Swal from 'sweetalert2';
+import { Dashboard } from '@/app/hooks/Dashboard';
+import { fetchDashboard, DashboardData } from '@/app/lib/admin';
 
 interface RoleItem {
     icon: React.ReactNode;
@@ -15,22 +18,25 @@ interface RoleItem {
     title: string;
     subtitle: string;
     totaltitle: string;
+    totalCountVar: string;
 }
 
 const rolesDetails: RoleItem[] = [
     {
-        href: '/super-admin/create-organization',
+        href: '/pages/organization/create',
         title: 'Organization',
         subtitle: 'Create and manage orgs',
         icon: <BsFillBuildingsFill />,
         totaltitle: 'Total Organizations',
+        totalCountVar: 'organizations',
     },
     {
-        href: '/super-admin/create-community',
+        href: '/pages/community/create',
         title: 'Community',
         subtitle: 'Set up new communities',
         icon: <FaPeopleGroup />,
         totaltitle: 'Total Communities',
+        totalCountVar: 'communities',
     },
     {
         href: '/super-admin/create-landlord',
@@ -38,6 +44,7 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Add new landlords',
         icon: <FaKey />,
         totaltitle: 'Total Landlords',
+        totalCountVar: 'landlords',
     },
     {
         href: '/super-admin/create-tenant',
@@ -45,10 +52,11 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Register new tenants',
         icon: <FaPeopleRoof />,
         totaltitle: 'Total Tenants',
+        totalCountVar: 'tenants',
     },
 ];
 
-function SidebarMenu({ role }: { role: RoleItem }) {
+export function SidebarMenu({ role }: { role: RoleItem }) {
     return (
         <li className="flex items-center space-x-2 rounded cursor-pointer hover:bg-[#1caec2] px-3 py-2">
             <span className="text-xl shrink-0">{role.icon}</span>
@@ -57,11 +65,11 @@ function SidebarMenu({ role }: { role: RoleItem }) {
     );
 }
 
-function QuickCreateSection({ roles }: { roles: RoleItem[] }) {
+export function QuickCreateSection({ roles }: { roles: RoleItem[] }) {
     return (
         <section className="mb-8">
             <h2 className="text-lg font-semibold mb-4">Quick Create</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${roles.length || 1}, minmax(0, 1fr))` }}>
                 {roles.map((item, idx) => (
                     <div key={idx} className="border border-gray-300 rounded p-6 text-center flex flex-col items-center justify-between hover:bg-gray-100">
                         <div className="bg-gray-200 rounded-full w-12 h-12 flex items-center justify-center mb-4 text-2xl">{item.icon}</div>
@@ -80,17 +88,20 @@ function QuickCreateSection({ roles }: { roles: RoleItem[] }) {
     );
 }
 
-function TotalDetailsSection({ roles }: { roles: RoleItem[] }) {
+export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[]; totalCounts?: DashboardData['totals'] }) {
     return (
         <section className="mb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {roles.map((item, idx) => (
-                    <div key={idx} className="relative border border-gray-300 rounded p-4 hover:bg-gray-100 flex flex-col justify-between items-start h-24">
-                        <div className="absolute top-4 right-4 bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center text-xl">{item.icon}</div>
-                        <div className="font-bold text-sm mb-1">{item.totaltitle}</div>
-                        <div className="font-semibold text-sm text-gray-600 mt-auto text-xl">100</div>
-                    </div>
-                ))}
+            <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${roles.length || 1}, minmax(0, 1fr))` }}>
+                {totalCounts &&
+                    roles.map((item, idx) => (
+                        <div key={idx} className="relative border border-gray-300 rounded p-4 hover:bg-gray-100 flex flex-col justify-between items-start h-24">
+                            <div className="absolute top-4 right-4 bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center text-xl">
+                                {item.icon}
+                            </div>
+                            <div className="font-bold text-sm mb-1">{item.totaltitle}</div>
+                            <div className="font-semibold text-sm text-gray-600 mt-auto text-xl">{totalCounts[item.totalCountVar]}</div>
+                        </div>
+                    ))}
             </div>
         </section>
     );
@@ -98,11 +109,20 @@ function TotalDetailsSection({ roles }: { roles: RoleItem[] }) {
 
 export default function SuperAdminHome() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
-
-    const organizations = [
-        { name: 'Org A', communityAdmin: 'Alice', totalCommunities: 5, totalLandlords: 10, totalResidents: 200 },
-        { name: 'Org B', communityAdmin: 'Bob', totalCommunities: 3, totalLandlords: 4, totalResidents: 80 },
-    ];
+    // We are using custom hooks useDashboard.ts, as we can use function useDashboard() in other components
+    const { data, isLoading, isError } = Dashboard();
+    console.log('Data from backend');
+    console.log(data);
+    useEffect(() => {
+        if (isError) {
+            Swal.fire({
+                icon: 'error',
+                text: (isError as Error).message || 'Something went wrong fetching your dashboard.',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#1CAEC2',
+            });
+        }
+    }, [isError]);
 
     return (
         <div className="font-inter flex h-screen bg-white text-black">
@@ -138,6 +158,11 @@ export default function SuperAdminHome() {
                     <div className="flex items-center space-x-6 text-sm font-semibold">
                         <select className="border border-gray-300 rounded px-1 py-1">
                             <option>Select Organization</option>
+                            {data?.adminOrgDetails.map((org, idx) => (
+                                <option key={idx} value={org.orgName}>
+                                    {org.orgName}
+                                </option>
+                            ))}
                         </select>
                         <div className="flex items-center space-x-1">
                             <span>Welcome, Ravi</span>
@@ -146,7 +171,7 @@ export default function SuperAdminHome() {
                 </header>
 
                 {/* Total Details Section */}
-                <TotalDetailsSection roles={rolesDetails} />
+                <TotalDetailsSection roles={rolesDetails} totalCounts={data?.totals} />
 
                 {/* Quick Create Section */}
                 <QuickCreateSection roles={rolesDetails} />
@@ -163,6 +188,7 @@ export default function SuperAdminHome() {
                             <thead>
                                 <tr className="bg-gray-50">
                                     <th className="px-4 py-2 border-b">Organization</th>
+                                    <th className="px-4 py-2 border-b">Organization Admin</th>
                                     <th className="px-4 py-2 border-b">Communities</th>
                                     <th className="px-4 py-2 border-b">Landlords</th>
                                     <th className="px-4 py-2 border-b">Residents</th>
@@ -170,12 +196,15 @@ export default function SuperAdminHome() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {organizations.map((org, idx) => (
+                                {data?.adminOrgDetails.map((org, idx) => (
                                     <tr key={idx} className="hover:bg-gray-100">
-                                        <td className="px-4 py-2 border-b text-center">{org.name}</td>
-                                        <td className="px-4 py-2 border-b text-center">{org.totalCommunities}</td>
-                                        <td className="px-4 py-2 border-b text-center">{org.totalLandlords}</td>
-                                        <td className="px-4 py-2 border-b text-center">{org.totalResidents}</td>
+                                        <td className="px-4 py-2 border-b text-center">{org.orgName}</td>
+                                        <td className="px-4 py-2 border-b text-center">
+                                            {org.orgAdminFirstName} {org.orgAdminLastName}
+                                        </td>
+                                        <td className="px-4 py-2 border-b text-center">{org.communitiesCount}</td>
+                                        <td className="px-4 py-2 border-b text-center">{org.landlordsCount}</td>
+                                        <td className="px-4 py-2 border-b text-center">{org.tenantsCount}</td>
                                         <td className="px-4 py-2 border-b text-center space-x-3">
                                             <button className="text-blue-600 hover:text-blue-800">
                                                 <FiEye className="inline" />

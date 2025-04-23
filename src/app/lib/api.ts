@@ -24,7 +24,7 @@ export async function sendApiRequest(endpoint: string, method: HttpMethod, paylo
             method,
             headers: { 'Content-Type': 'application/json' },
             body: payload != null ? JSON.stringify(payload) : undefined,
-            credentials: 'include'
+            credentials: 'include',
         });
 
         const jsonData: ApiResponse<T> = await response.json();
