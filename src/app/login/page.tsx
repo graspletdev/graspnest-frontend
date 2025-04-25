@@ -4,10 +4,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Roles } from '@/app/constants';
-import { signIn } from '@/app/lib/auth';
 import Swal from 'sweetalert2';
-import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import { signIn, getSession } from 'next-auth/react';
 
 // Define types for each form
 type LoginInputs = {
@@ -23,6 +22,7 @@ type KeycloakToken = {
 };
 
 export default function LoginPage() {
+    const { register, handleSubmit } = useForm<LoginInputs>();
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const {
@@ -31,43 +31,29 @@ export default function LoginPage() {
         formState: { errors: errorsLogin },
     } = useForm<LoginInputs>();
 
-    const onLoginSubmit: SubmitHandler<LoginInputs> = async ({ email, password }) => {
+    const onLoginSubmit: SubmitHandler<LoginInputs> = async (data) => {
         setLoading(true);
-        try {
-            const result = await signIn(email, password);
+        const res = await signIn('credentials', {
+            redirect: false,
+            email: data.email,
+            password: data.password,
+        });
+        setLoading(false);
+        //console.log('res', res);
+        const session = await getSession();
+        const roles = session?.user.roles || [];
+        //console.log('session from login', session);
+        //console.log('roles', roles);
+        if (roles.includes('SuperAdmin')) {
+            return router.push('/pages/superadmin');
+        }
 
-            const token = result.data?.['access_token'];
-            if (typeof token !== 'string') {
-                throw new Error('Authentication succeeded but no access token was returned.');
-            }
-
-            const decoded = jwtDecode<KeycloakToken>(token);
-            const roles = decoded.resource_access?.GraspNestClient?.roles ?? [];
-
-            await Swal.fire({
-                icon: 'success',
-                text: 'Logged in successfully!',
-                confirmButtonColor: '#1CAEC2',
-            });
-
-            if (roles.includes('SuperAdmin')) {
-                router.push('/pages/superadmin');
-            } else if (roles.includes('OrgAdmin')) {
-                router.push('/pages/organization');
-            } else if (roles.includes('CommAdmin')) {
-                router.push('/pages/community');
-            } else {
-                router.push('/'); // fallback
-            }
-        } catch (err: any) {
-            Swal.fire({
+        if (res?.error) {
+            return Swal.fire({
                 icon: 'error',
-                text: err.message || 'Login failed. Please try again.',
-                confirmButtonText: 'OK',
+                text: res.error,
                 confirmButtonColor: '#1CAEC2',
             });
-        } finally {
-            setLoading(false);
         }
     };
 

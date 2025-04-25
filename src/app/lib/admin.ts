@@ -5,6 +5,8 @@ import { ApiResponse, sendApiRequest } from './api';
 export interface OrgDetailsDto {
     orgId: string;
     orgName: string;
+    orgAdminFirstName: string;
+    orgAdminLastName: string;
     communitiesCount: number;
     landlordsCount: number;
     tenantsCount: number;
@@ -16,7 +18,6 @@ export interface DashboardData {
         communities: number;
         landlords: number;
         tenants: number;
-        messages: number;
     };
     adminOrgDetails: OrgDetailsDto[];
 }

@@ -1,4 +1,5 @@
 // src/app/lib/api.ts
+import { getSession } from 'next-auth/react';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -20,9 +21,22 @@ export class ApiError extends Error {
 export async function sendApiRequest(endpoint: string, method: HttpMethod, payload?: any): Promise<ApiResponse<T>> {
     // Api Request using Next.js fetch API
     try {
+        const session = await getSession();
+        const token = session?.user?.accessToken;
+
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        };
+
+        if (token) {
+            console.log('Adding token', token);
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(endpoint, {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: payload != null ? JSON.stringify(payload) : undefined,
             credentials: 'include',
         });
