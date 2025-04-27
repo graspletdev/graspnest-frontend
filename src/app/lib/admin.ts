@@ -12,7 +12,7 @@ export interface OrgDetailsDto {
     tenantsCount: number;
 }
 
-export interface DashboardData {
+export interface adminDashboardData {
     totals: {
         organizations: number;
         communities: number;
@@ -22,7 +22,7 @@ export interface DashboardData {
     adminOrgDetails: OrgDetailsDto[];
 }
 
-export async function fetchDashboard(): Promise<ApiResponse<DashboardData>> {
+export async function fetchDashboard(): Promise<ApiResponse<adminDashboardData>> {
     //console.log("Inside lib fetchDashboard")
     const fetchDashboardUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`;
     const fetchDashboardResponseJson = await sendApiRequest(fetchDashboardUrl, 'GET');

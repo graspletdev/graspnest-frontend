@@ -70,16 +70,19 @@ async function loginWithCredentials(email: string, password: string) {
 }
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
+    console.log('Before Refreshing access token', token.refereshToken);
+
     const res = await fetch(`${NEXT_PUBLIC_API_URL}/api/auth/refreshtoken`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: token.refreshToken }),
+        body: JSON.stringify({ refreshToken: token.refreshToken }),
     });
     const json: ApiResponse<SignInResponse> = await res.json();
     if (!res.ok || !json.result || !json.data) {
         throw new Error('Unable to refresh access token');
     }
     const { access_token, refresh_token, expires_in } = json.data;
+    console.log('After Refreshing access token', json.data);
     return {
         ...token,
         accessToken: access_token,
