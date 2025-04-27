@@ -1,17 +1,17 @@
 // src/app/pages/superadmin/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { FiMenu, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiMenu, FiEye, FiEdit2, FiTrash2, FiLogOut } from 'react-icons/fi';
 import { BsFillBuildingsFill } from 'react-icons/bs';
 import { FaPeopleGroup, FaPeopleRoof } from 'react-icons/fa6';
 import { FaKey } from 'react-icons/fa';
 import { MdSecurity } from 'react-icons/md';
 import Swal from 'sweetalert2';
-import { fetchDashboard, DashboardData } from '@/app/lib/admin';
-import useSWR from 'swr';
-import { useSession } from 'next-auth/react';
+import { useAdminDashboard } from '@/app/hooks/useDashboard';
+import { useSession, signOut } from 'next-auth/react';
+import { adminDashboardData } from '@/app/lib/admin';
 
 interface RoleItem {
     icon: React.ReactNode;
@@ -19,8 +19,15 @@ interface RoleItem {
     title: string;
     subtitle: string;
     totaltitle: string;
-    totalCountVar: string;
     createhref: string;
+    totalCountName: string;
+}
+
+interface totalCounts {
+    organizations?: number;
+    communities?: number;
+    landlords?: number;
+    tenants?: number;
 }
 
 const rolesDetails: RoleItem[] = [
@@ -30,7 +37,7 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Create and manage orgs',
         icon: <BsFillBuildingsFill />,
         totaltitle: 'Total Organizations',
-        totalCountVar: 'organizations',
+        totalCountName: 'organizations',
         createhref: '/pages/organization/create',
     },
     {
@@ -39,7 +46,7 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Set up new communities',
         icon: <FaPeopleGroup />,
         totaltitle: 'Total Communities',
-        totalCountVar: 'communities',
+        totalCountName: 'communities',
         createhref: '/pages/community/create',
     },
     {
@@ -48,7 +55,7 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Add new landlords',
         icon: <FaKey />,
         totaltitle: 'Total Landlords',
-        totalCountVar: 'landlords',
+        totalCountName: 'landlords',
         createhref: '/pages/landlords/create',
     },
     {
@@ -57,10 +64,21 @@ const rolesDetails: RoleItem[] = [
         subtitle: 'Register new tenants',
         icon: <FaPeopleRoof />,
         totaltitle: 'Total Tenants',
-        totalCountVar: 'tenants',
+        totalCountName: 'tenants',
         createhref: '/pages/tenants/create',
     },
 ];
+
+export function SidebarLogoutItem() {
+    return (
+        <li className="flex items-center space-x-2 rounded cursor-pointer hover:bg-[#1caec2] px-3 py-2">
+            <button onClick={() => signOut({ callbackUrl: '/login' })} className="flex items-center w-full text-left">
+                <FiLogOut className="text-xl shrink-0" />
+                <span className="ml-2">Logout</span>
+            </button>
+        </li>
+    );
+}
 
 export function SidebarMenu({ role }: { role: RoleItem }) {
     return (
@@ -94,7 +112,7 @@ export function QuickCreateSection({ roles }: { roles: RoleItem[] }) {
     );
 }
 
-export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[]; totalCounts?: DashboardData['totals'] }) {
+export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[]; totalCounts: totalCounts | undefined }) {
     return (
         <section className="mb-8">
             <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${roles.length || 1}, minmax(0, 1fr))` }}>
@@ -105,9 +123,7 @@ export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[];
                                 {item.icon}
                             </div>
                             <div className="font-bold text-sm mb-1">{item.totaltitle}</div>
-                            <div className="font-semibold text-sm text-gray-600 mt-auto text-xl">
-                                {'totalCountVar' in item ? totalCounts[item.totalCountVar] : 0}
-                            </div>
+                            <div className="font-semibold text-sm text-gray-600 mt-auto text-xl">{totalCounts[item.totalCountName]}</div>
                         </div>
                     ))}
             </div>
@@ -115,23 +131,30 @@ export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[];
     );
 }
 
-export default function SuperAdminClient({ initialData }: { initialData: DashboardData }) {
+export default function SuperAdminClient({ initialData }: { initialData: adminDashboardData }) {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const { data: sessionData } = useSession();
     // We are using custom hooks useDashboard.ts, as we can use function useDashboard() in other components
-    const { data, error, isLoading } = useSWR<DashboardData>('/api/admin/dashboard', fetchDashboard, { fallbackData: initialData });
+    const { data, isError, isLoading, isValidating } = useAdminDashboard(initialData);
+    const [selectedOrgName, setSelectedOrgName] = useState<string | 'all'>('all');
+    const filteredOrgs = useMemo(() => {
+        if (selectedOrgName === 'all') return data?.adminOrgDetails;
+
+        return data?.adminOrgDetails.filter((o) => o.orgName === selectedOrgName);
+    }, [data, selectedOrgName]);
+
     console.log('Data from backend');
     console.log(data);
     useEffect(() => {
-        if (error) {
+        if (isError) {
             Swal.fire({
                 icon: 'error',
-                text: (error as Error).message || 'Something went wrong fetching your dashboard.',
+                text: (isError as Error).message || 'Something went wrong fetching your dashboard.',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#1CAEC2',
             });
         }
-    }, [error]);
+    }, [isError]);
 
     return (
         <div className="font-inter flex h-screen bg-white text-black">
@@ -148,6 +171,7 @@ export default function SuperAdminClient({ initialData }: { initialData: Dashboa
                             {rolesDetails.map((rolesDetail, idx) => (
                                 <SidebarMenu key={idx} role={rolesDetail} />
                             ))}
+                            <SidebarLogoutItem />
                         </ul>
                     </nav>
                 </aside>
@@ -165,8 +189,12 @@ export default function SuperAdminClient({ initialData }: { initialData: Dashboa
                     </div>
 
                     <div className="flex items-center space-x-6 text-sm font-semibold">
-                        <select className="border border-gray-300 rounded px-1 py-1">
-                            <option>Select Organization</option>
+                        <select
+                            className="border border-gray-300 rounded px-1 py-1"
+                            value={selectedOrgName}
+                            onChange={(e) => setSelectedOrgName(e.target.value as string)}
+                        >
+                            <option value="all">Select Organization</option>
                             {data?.adminOrgDetails.map((org, idx) => (
                                 <option key={idx} value={org.orgName}>
                                     {org.orgName}
@@ -205,7 +233,7 @@ export default function SuperAdminClient({ initialData }: { initialData: Dashboa
                                 </tr>
                             </thead>
                             <tbody>
-                                {data?.adminOrgDetails.map((org, idx) => (
+                                {filteredOrgs.map((org, idx) => (
                                     <tr key={idx} className="hover:bg-gray-100">
                                         <td className="px-4 py-2 border-b text-center">{org.orgName}</td>
                                         <td className="px-4 py-2 border-b text-center">

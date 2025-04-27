@@ -2,8 +2,8 @@
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/app/lib/authOptions';
-import SuperAdminClient from './SuperAdminDashboardClient';
-import { DashboardData } from '@/app/lib/admin';
+import SuperAdminClient from './SuperAdminClient';
+import { adminDashboardData } from '@/app/lib/admin';
 
 export default async function SuperAdminHome() {
     // Check session & roles on the server
@@ -26,7 +26,7 @@ export default async function SuperAdminHome() {
         throw new Error('Failed to load dashboard data');
     }
     const api = await res.json();
-    const data: DashboardData = api.data;
+    const data: adminDashboardData = api.data;
 
     //  Hand off to a client component for rendering + hooks
     return <SuperAdminClient initialData={data} />;

@@ -46,6 +46,10 @@ export default function LoginPage() {
         //console.log('roles', roles);
         if (roles.includes('SuperAdmin')) {
             return router.push('/pages/superadmin');
+        } else if (roles.includes('OrgAdmin')) {
+            return router.push('/pages/organization');
+        } else if (roles.includes('CommunityAdmin')) {
+            return router.push('/pages/community');
         }
 
         if (res?.error) {

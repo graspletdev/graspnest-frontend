@@ -19,7 +19,7 @@ export default function CreateCommunity() {
         commLast: '',
         commEmail: '',
         commContact: '',
-        orgName: null,
+        orgName: '',
     });
 
     function handleChange(e) {
