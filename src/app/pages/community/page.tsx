@@ -11,10 +11,10 @@ export default async function CommAdminHome() {
     if (!session) {
         return redirect('/login');
     }
-    const allowedRoles = ['SuperAdmin', 'OrgAdmin', 'CommunityAdmin'];
-    if (!session.user.roles.some((role: string) => allowedRoles.includes(role))) {
-        return redirect('/403');
-    }
+    // const allowedRoles = ['SuperAdmin', 'OrgAdmin', 'CommunityAdmin'];
+    // if (!session.user.roles.some((role: string) => allowedRoles.includes(role))) {
+    //     return redirect('/403');
+    // }
     console.log('CommAdminHomemAPI');
     // Fetch your dashboard data (server-side)
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/community/dashboard`, {
@@ -25,6 +25,7 @@ export default async function CommAdminHome() {
     });
     console.log('CommAdminHome: ', res);
     if (!res.ok) {
+
         // you could redirect to an error page, or render an error UI
         throw new Error('Failed to load dashboard data');
     }

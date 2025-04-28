@@ -11,10 +11,10 @@ export default async function OrgAdminHome() {
     if (!session) {
         return redirect('/login');
     }
-    const allowedRoles = ['SuperAdmin', 'OrgAdmin'];
-    if (!session.user.roles.some((role: string) => allowedRoles.includes(role))) {
-        return redirect('/403');
-    }
+    // const allowedRoles = ['SuperAdmin', 'OrgAdmin'];
+    // if (!session.user.roles.some((role: string) => allowedRoles.includes(role))) {
+    //     return redirect('/403');
+    // }
 
     // Fetch your dashboard data (server-side)
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/org/dashboard`, {
@@ -25,6 +25,7 @@ export default async function OrgAdminHome() {
     });
     console.log('OrgAdminHome: ', res);
     if (!res.ok) {
+
         // you could redirect to an error page, or render an error UI
         throw new Error('Failed to load dashboard data');
     }

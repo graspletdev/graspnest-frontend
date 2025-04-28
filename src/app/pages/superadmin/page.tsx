@@ -11,9 +11,9 @@ export default async function SuperAdminHome() {
     if (!session) {
         return redirect('/login');
     }
-    if (!session.user.roles.includes('SuperAdmin')) {
-        return redirect('/403');
-    }
+    // if (!session.user.roles.includes('SuperAdmin')) {
+    //     return redirect('/403');
+    // }
 
     // Fetch your dashboard data (server-side)
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
