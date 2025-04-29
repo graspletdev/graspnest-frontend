@@ -217,7 +217,7 @@ export default function SuperAdminClient({ initialData }: { initialData: adminDa
                 <section>
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold">Organization Overview</h2>
-                        <input type="text" placeholder="Search Organization" className="border border-gray-300 rounded px-3 py-1" />
+                        {/* <input type="text" placeholder="Search Organization" className="border border-gray-300 rounded px-3 py-1" /> */}
                     </div>
 
                     <div className="overflow-x-auto">

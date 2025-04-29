@@ -7,6 +7,7 @@ import { count } from 'console';
 import { BsFillBuildingsFill } from 'react-icons/bs';
 import { FaUpload } from 'react-icons/fa6';
 
+
 export default function CreateOrganization() {
     // const router = useRouter();
     const [form, setForm] = useState({

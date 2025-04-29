@@ -8,6 +8,8 @@ export interface landlordDetailsDto {
     landlordFirstName: string;
     landlordLastName: string;
     unitsCount: number;
+    blocksCount: number;
+    blockName: string;
     landlordsCount: number;
     tenantsCount: number;
 }
@@ -16,6 +18,8 @@ export interface commDashboardData {
     totals: {
         landlords: number;
         tenants: number;
+        unitsCount: number;
+        blocksCount: number;
     };
     commlandlordDetails: landlordDetailsDto[];
 }

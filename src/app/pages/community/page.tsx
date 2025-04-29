@@ -25,7 +25,6 @@ export default async function CommAdminHome() {
     });
     console.log('CommAdminHome: ', res);
     if (!res.ok) {
-
         // you could redirect to an error page, or render an error UI
         throw new Error('Failed to load dashboard data');
     }
