@@ -132,8 +132,8 @@ export const authOptions: NextAuthOptions = {
         // Persist tokens + roles on initial sign-in, refresh if expired
         async jwt({ token, user }) {
             console.log('From JWT');
-            console.log('jwt callback user', user);
-            console.log('jwt callback token', token);
+            // console.log('jwt callback user', user);
+            // console.log('jwt callback token', token);
 
             // user is only defined on the very first JWT callback (right after authorize() returns).
             // This is where we save the tokens and roles to the JWT.
@@ -160,15 +160,15 @@ export const authOptions: NextAuthOptions = {
         // Expose tokens + roles to the client `useSession()`
         async session({ session, token }) {
             console.log('From Session');
-            console.log('session callback token', token);
-            console.log(' begin session', session);
+            // console.log('session callback token', token);
+            // console.log(' begin session', session);
             session.user.accessToken = token.accessToken as string;
             session.user.refreshToken = token.refreshToken as string;
             session.user.accessTokenExpires = token.accessTokenExpires as number;
             session.user.roles = token.roles as string[];
             session.user.name = token.name as string;
             session.user.email = token.email as string;
-            console.log('after assign callback session', session);
+            //console.log('after assign callback session', session);
             return session;
         },
     },

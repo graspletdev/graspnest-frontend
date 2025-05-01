@@ -243,12 +243,15 @@ export default function SuperAdminClient({ initialData }: { initialData: adminDa
                                         <td className="px-4 py-2 border-b text-center">{org.landlordsCount}</td>
                                         <td className="px-4 py-2 border-b text-center">{org.tenantsCount}</td>
                                         <td className="px-4 py-2 border-b text-center space-x-3">
-                                            <button className="text-blue-600 hover:text-blue-800">
-                                                <FiEye className="inline" />
-                                            </button>
-                                            <button className="text-yellow-500 hover:text-yellow-600">
+                                            <Link
+                                                href={`/pages/organization/${org.orgId}/view`}
+                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+                                            >
+                                                <FiEye className="mr-1" />
+                                            </Link>
+                                            <Link href={`/pages/organization/${org.orgId}/edit`} className="text-yellow-500 hover:text-yellow-600">
                                                 <FiEdit2 className="inline" />
-                                            </button>
+                                            </Link>
                                             <button className="text-red-600 hover:text-red-800">
                                                 <FiTrash2 className="inline" />
                                             </button>

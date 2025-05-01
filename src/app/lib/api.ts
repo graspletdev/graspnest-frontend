@@ -28,7 +28,9 @@ export async function sendApiRequest(endpoint: string, method: HttpMethod, paylo
             'Content-Type': 'application/json',
             Accept: 'application/json',
         };
-
+        console.log('token', token);
+        console.log('session', session);
+        console.log('session.user', session?.user);
         if (token) {
             console.log('Adding token', token);
             headers['Authorization'] = `Bearer ${token}`;
