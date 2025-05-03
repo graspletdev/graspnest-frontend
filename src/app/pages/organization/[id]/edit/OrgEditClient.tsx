@@ -1,4 +1,4 @@
-// src/app/organization/[id]/edit/OrgEditClient.tsx
+// src/app/pages/organization/[id]/edit/OrgEditClient.tsx
 // └─ this is a Client Component
 'use client';
 import { useRouter } from 'next/navigation';

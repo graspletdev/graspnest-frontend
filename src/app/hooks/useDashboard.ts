@@ -4,7 +4,7 @@ import { useApi } from './useApi';
 import type { adminDashboardData } from '@/app/lib/admin';
 
 export function useAdminDashboard(initialData?: adminDashboardData) {
-    return useApi<adminDashboardData>('/api/admin/dashboard', {
+    return useApi<adminDashboardData>(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
         fallbackData: initialData,
         revalidateOnFocus: false,
     });
@@ -14,7 +14,7 @@ export function useAdminDashboard(initialData?: adminDashboardData) {
 import type { orgDashboardData } from '@/app/lib/org';
 
 export function useOrgDashboard(initialData?: orgDashboardData) {
-    const url = `/api/org//dashboard`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/org/dashboard`;
     return useApi<orgDashboardData>(url, { fallbackData: initialData });
 }
 
@@ -22,6 +22,6 @@ export function useOrgDashboard(initialData?: orgDashboardData) {
 import type { commDashboardData } from '@/app/lib/comm';
 
 export function useCommDashboard(initialData?: commDashboardData) {
-    const url = `/api/community/dashboard`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/community/dashboard`;
     return useApi<commDashboardData>(url, { fallbackData: initialData });
 }

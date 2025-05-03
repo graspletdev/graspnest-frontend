@@ -1,4 +1,4 @@
-// src/app/pages/organization/page.tsx
+// src/app/pages/organization/OrgAdminClient.tsx
 'use client';
 
 import React, { useState, useMemo } from 'react';

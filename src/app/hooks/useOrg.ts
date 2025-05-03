@@ -1,7 +1,8 @@
-// src/hooks/useOrg.ts
+// src/app/hooks/useOrg.ts
 import { useState, useCallback } from 'react';
 import { createOrg, CreateOrgDto, OrgDto } from '@/app/lib/org';
 import { updateOrg, UpdateOrgDto } from '@/app/lib/org';
+import { mutate } from 'swr';
 
 export function useCreateOrg() {
     const [isLoading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ export function useCreateOrg() {
         }
     }, []);
 
-    return { create, isLoading, error };
+    return { create, isLoading, error, mutate };
 }
 
 export function useUpdateOrg() {

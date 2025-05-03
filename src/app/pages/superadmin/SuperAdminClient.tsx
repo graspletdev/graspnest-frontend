@@ -1,4 +1,4 @@
-// src/app/pages/superadmin/page.tsx
+// src/app/pages/superadmin/SuperAdminClient.tsx
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { useAdminDashboard } from '@/app/hooks/useDashboard';
 import { useSession, signOut } from 'next-auth/react';
 import { adminDashboardData } from '@/app/lib/admin';
+import { deleteOrg } from '@/app/lib/org';
 
 interface RoleItem {
     icon: React.ReactNode;
@@ -134,14 +135,35 @@ export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[];
 export default function SuperAdminClient({ initialData }: { initialData: adminDashboardData }) {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const { data: sessionData } = useSession();
+
     // We are using custom hooks useDashboard.ts, as we can use function useDashboard() in other components
-    const { data, isError, isLoading, isValidating } = useAdminDashboard(initialData);
+    const { data, isError, isLoading, isValidating, mutate } = useAdminDashboard(initialData);
     const [selectedOrgName, setSelectedOrgName] = useState<string | 'all'>('all');
     const filteredOrgs = useMemo(() => {
         if (selectedOrgName === 'all') return data?.adminOrgDetails;
 
         return data?.adminOrgDetails.filter((o) => o.orgName === selectedOrgName);
     }, [data, selectedOrgName]);
+
+    const handleDelete = async (orgId: string) => {
+        const ok = await Swal.fire({
+            title: 'Disable organization?',
+            text: 'This cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, disable it',
+        });
+        if (!ok.isConfirmed) return;
+
+        try {
+            await deleteOrg(orgId);
+            await Swal.fire('Disabled!', 'Organization has been disabled.', 'success');
+            //await mutate();
+        } catch (err: any) {
+            console.error(err);
+            Swal.fire('Error', err.message || 'Failed to disable org.', 'error');
+        }
+    };
 
     console.log('Data from backend');
     console.log(data);
@@ -252,7 +274,7 @@ export default function SuperAdminClient({ initialData }: { initialData: adminDa
                                             <Link href={`/pages/organization/${org.orgId}/edit`} className="text-yellow-500 hover:text-yellow-600">
                                                 <FiEdit2 className="inline" />
                                             </Link>
-                                            <button className="text-red-600 hover:text-red-800">
+                                            <button onClick={() => handleDelete(org.orgId)} className="text-red-600 hover:text-red-800">
                                                 <FiTrash2 className="inline" />
                                             </button>
                                         </td>

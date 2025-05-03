@@ -1,4 +1,4 @@
-// src/app/lib/admin.ts
+// src/app/lib/comm.ts
 
 import { ApiResponse, sendApiRequest } from './api';
 

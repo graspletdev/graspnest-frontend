@@ -1,4 +1,4 @@
-// src/app/organization/[id]/edit/page.tsx
+// src/app/pages/organization/[id]/edit/page.tsx
 import { getServerSession } from 'next-auth/next';
 import { redirect, notFound } from 'next/navigation';
 import { authOptions } from '@/app/lib/authOptions';

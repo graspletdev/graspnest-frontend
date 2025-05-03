@@ -1,6 +1,7 @@
 // src/app/hooks/useApi.ts
 import useSWR, { KeyedMutator, SWRConfiguration } from 'swr';
 import { getSession } from 'next-auth/react';
+import { ApiResponse } from '@/app/lib/api';
 
 async function fetcher<T>(url: string): Promise<T> {
     const session = await getSession();
@@ -20,7 +21,11 @@ async function fetcher<T>(url: string): Promise<T> {
         const json = await res.json().catch(() => null);
         throw new Error(json?.message ?? res.statusText);
     }
-    return res.json();
+    const wrapper: ApiResponse<T> = await res.json();
+    if (!wrapper.result) {
+        throw new Error(wrapper.message || 'API returned an error');
+    }
+    return wrapper.data!;
 }
 
 export function useApi<T = any>(

@@ -42,12 +42,19 @@ export async function sendApiRequest(endpoint: string, method: HttpMethod, paylo
             body: payload != null ? JSON.stringify(payload) : undefined,
             credentials: 'include',
         });
+        console.log('response', response);
+        const text = await response.text();
+        let jsonData: ApiResponse<T>;
 
-        const jsonData: ApiResponse<T> = await response.json();
-        if (!response.ok || !jsonData.result) {
-            throw new ApiError(jsonData.message || response.statusText, response.status);
+        try {
+            jsonData = JSON.parse(text);
+        } catch {
+            throw new ApiError('Invalid JSON from server', response.status);
         }
 
+        if (!response.ok || !('result' in jsonData)) {
+            throw new ApiError(jsonData?.message || response.statusText, response.status);
+        }
         return jsonData;
     } catch (err: any) {
         throw err;

@@ -1,4 +1,4 @@
-// src/app/lib/admin.ts
+// src/app/lib/org.ts
 
 import { ApiResponse, sendApiRequest } from './api';
 
@@ -70,8 +70,8 @@ export async function fetchOrgDashboard(): Promise<ApiResponse<orgDashboardData>
 
 //CREATE
 export function createOrg(data: CreateOrgDto): Promise<ApiResponse<OrgDto>> {
-    //console.log("Inside lib createOrg")
-    //console.log('Creating organization with data:', data);
+    console.log('Inside lib createOrg');
+    console.log('Creating organization with data:', data);
     return sendApiRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/org`, 'POST', data);
 }
 
@@ -96,6 +96,8 @@ export function updateOrg(id: string, data: UpdateOrgDto): Promise<ApiResponse<O
 }
 
 //   // DELETE
-//   export function deleteOrg(id: string): Promise<ApiResponse<null>> {
-//     return sendApiRequest(`/api/organizations/${id}`, 'DELETE');
-//   }
+export function deleteOrg(id: string): Promise<ApiResponse<null>> {
+    console.log('Inside lib DeleteOrg');
+    console.log('id', id);
+    return sendApiRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/org/${id}`, 'DELETE');
+}

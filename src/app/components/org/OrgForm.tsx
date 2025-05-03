@@ -1,3 +1,4 @@
+//src/app/components/org/OrgForm
 'use client';
 
 import React, { useState, useCallback, ChangeEvent, FormEvent } from 'react';
@@ -226,7 +227,7 @@ export function OrgForm({ initialValues = {}, readOnly = false, onSubmit, isSubm
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormInput label="First Name" name="adminFirst" value={form.adminFirst} onChange={handleChange} required readOnly={readOnly} />
                     <FormInput label="Last Name" name="adminLast" value={form.adminLast} onChange={handleChange} required readOnly={readOnly} />
-                    <FormInput label="Email" name="adminEmail" value={form.adminEmail} onChange={handleChange} type="email" required readOnly={readOnly} />
+                    <FormInput label="Email" name="adminEmail" value={form.adminEmail} onChange={handleChange} type="email" required readOnly={!isCreate} />
                     <FormInput label="Contact" name="adminContact" value={form.adminContact} onChange={handleChange} type="tel" readOnly={readOnly} />
                 </div>
             </section>

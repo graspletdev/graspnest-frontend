@@ -1,3 +1,4 @@
+//src/app/components/ClientError
 'use client';
 
 import { useEffect } from 'react';
