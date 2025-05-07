@@ -77,11 +77,11 @@ export default function OrgAdminClient({ initialData }: { initialData: orgDashbo
 
         try {
             await deleteComm(commId);
-            await Swal.fire('Disabled!', 'Organization has been disabled.', 'success');
+            await Swal.fire('Disabled!', 'Community has been disabled.', 'success');
             //await mutate();
         } catch (err: any) {
             console.error(err);
-            Swal.fire('Error', err.message || 'Failed to disable org.', 'error');
+            Swal.fire('Error', err.message || 'Failed to disable Community.', 'error');
         }
     };
     return (
