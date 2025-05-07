@@ -1,23 +1,23 @@
-// src/app/pages/organization/[id]/edit/page.tsx
+// src/app/pages/community/[id]/edit/page.tsx
 import { getServerSession } from 'next-auth/next';
 import { redirect, notFound } from 'next/navigation';
 import { authOptions } from '@/app/lib/authOptions';
-import OrgEditClient from './OrgEditClient';
+import CommEditClient from './CommEditClient';
 import ClientError from '@/app/components/ClientError';
 import type { ApiResponse } from '@/app/lib/api';
-import type { OrganizationForm } from '@/app/components/org/OrgForm';
+import type { CommunityForm } from '@/app/components/comm/CommForm';
 
-export default async function OrgEditPage({ params }: { params: { id: string } }) {
+export default async function CommEditPage({ params }: { params: { id: string } }) {
     const { id } = await params;
 
     // Auth guard
     const session = await getServerSession(authOptions);
     if (!session) return redirect('/login');
 
-    // Load org
-    let data: OrganizationForm;
+    // Load community
+    let data: CommunityForm;
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/org/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/community/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${session.user.accessToken}`,
@@ -26,18 +26,18 @@ export default async function OrgEditPage({ params }: { params: { id: string } }
         });
         if (res.status === 404) return notFound();
         if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-        const body: ApiResponse<OrganizationForm> = await res.json();
+        const body: ApiResponse<CommunityForm> = await res.json();
         if (!body.data) return notFound();
         data = body.data;
     } catch (err: any) {
-        console.error('[OrgEditPage]', err);
-        return <ClientError message={err.message} redirectTo="/pages/organization" />;
+        console.error('[CommEditPage]', err);
+        return <ClientError message={err.message} redirectTo="/pages/community" />;
     }
 
     return (
         <div className="bg-gray-100 min-h-screen p-8">
-            <h1 className="text-2xl font-bold mb-6">Edit Organization</h1>
-            <OrgEditClient id={id} initialData={data} />
+            <h1 className="text-2xl font-bold mb-6">Edit Community</h1>
+            <CommEditClient id={id} initialData={data} />
         </div>
     );
 }

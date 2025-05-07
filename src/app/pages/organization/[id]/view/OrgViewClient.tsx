@@ -15,6 +15,7 @@ export default function OrgViewClient({ initialData }: OrgViewClientProps) {
             initialValues={initialData} // prefill the form
             readOnly // disable all inputs & hide the Save button
             onSubmit={async () => {}} // no-op, since it's read-only
+            action="view"
         />
     );
 }

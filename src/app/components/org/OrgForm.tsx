@@ -61,7 +61,7 @@ function FormInput({
     );
 }
 
-// Generic file uploader w/ preview
+//  file uploader
 function UploadButton({
     label,
     name,
@@ -97,7 +97,7 @@ export interface OrgFormProps {
     readOnly?: boolean;
     isSubmitting?: boolean;
     onSubmit: (values: OrganizationForm) => Promise<void>;
-    action?: 'create' | 'edit';
+    action?: 'create' | 'edit' | 'view';
 }
 
 export function OrgForm({ initialValues = {}, readOnly = false, onSubmit, isSubmitting = false, action = 'create' }: OrgFormProps) {
@@ -187,7 +187,9 @@ export function OrgForm({ initialValues = {}, readOnly = false, onSubmit, isSubm
 
             {/* Address */}
             <section>
-                <h2 className="font-semibold mb-2 text-gray-600">Address</h2>
+                <h2 className="font-semibold mb-2 text-gray-600">
+                    Address<span className="text-red-500">*</span>
+                </h2>
                 <textarea
                     name="address"
                     value={form.address}

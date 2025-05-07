@@ -5,6 +5,7 @@ import { ApiResponse, sendApiRequest } from './api';
 export interface CommDetailsDto {
     orgId: number;
     orgName: string;
+    commId: string;
     commName: string;
     commAdminFirstName: string;
     commAdminLastName: string;

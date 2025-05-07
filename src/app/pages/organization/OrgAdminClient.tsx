@@ -11,6 +11,8 @@ import { orgDashboardData } from '@/app/lib/org';
 import { TotalDetailsSection, QuickCreateSection, SidebarMenu, SidebarLogoutItem } from '@/app/pages/superadmin/SuperAdminClient';
 import { useSession } from 'next-auth/react';
 import { useOrgDashboard } from '@/app/hooks/useDashboard';
+import { deleteComm } from '@/app/lib/community';
+import Swal from 'sweetalert2';
 
 interface RoleItem {
     icon: React.ReactNode;
@@ -63,6 +65,25 @@ export default function OrgAdminClient({ initialData }: { initialData: orgDashbo
 
         return data?.orgCommDetails.filter((o) => o.commName === selectedCommName);
     }, [data, selectedCommName]);
+    const handleDelete = async (commId: string) => {
+        const ok = await Swal.fire({
+            title: 'Disable Community?',
+            text: 'This cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, disable it',
+        });
+        if (!ok.isConfirmed) return;
+
+        try {
+            await deleteComm(commId);
+            await Swal.fire('Disabled!', 'Organization has been disabled.', 'success');
+            //await mutate();
+        } catch (err: any) {
+            console.error(err);
+            Swal.fire('Error', err.message || 'Failed to disable org.', 'error');
+        }
+    };
     return (
         <div className="font-inter flex h-screen bg-white text-black">
             {/* Sidebar */}
@@ -147,13 +168,16 @@ export default function OrgAdminClient({ initialData }: { initialData: orgDashbo
                                         <td className="px-4 py-2 border-b text-center">{comm.landlordsCount}</td>
                                         <td className="px-4 py-2 border-b text-center">{comm.tenantsCount}</td>
                                         <td className="px-4 py-2 border-b text-center space-x-3">
-                                            <button className="text-blue-600 hover:text-blue-800">
-                                                <FiEye className="inline" />
-                                            </button>
-                                            <button className="text-yellow-500 hover:text-yellow-600">
+                                            <Link
+                                                href={`/pages/community/${comm.commId}/view`}
+                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+                                            >
+                                                <FiEye className="mr-1" />
+                                            </Link>
+                                            <Link href={`/pages/community/${comm.commId}/edit`} className="text-yellow-500 hover:text-yellow-600">
                                                 <FiEdit2 className="inline" />
-                                            </button>
-                                            <button className="text-red-600 hover:text-red-800">
+                                            </Link>
+                                            <button onClick={() => handleDelete(comm.commId)} className="text-red-600 hover:text-red-800">
                                                 <FiTrash2 className="inline" />
                                             </button>
                                         </td>
