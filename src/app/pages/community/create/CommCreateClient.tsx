@@ -8,7 +8,12 @@ import { useCreateComm } from '@/app/hooks/useCommunity';
 import { CommForm } from '@/app/components/comm/CommForm';
 import type { CommunityForm } from '@/app/components/comm/CommForm';
 
-export default function CommCreateClient() {
+interface CommCreateClientProps {
+    /** The org object loaded by the Server Component */
+    orgNames: string[];
+}
+
+export default function CommCreateClient({orgNames}: CommCreateClientProps) {
     const router = useRouter();
     const { create, isLoading, error, mutate } = useCreateComm();
 
@@ -27,5 +32,5 @@ export default function CommCreateClient() {
         }
     }
 
-    return <CommForm onSubmit={handleCreate} readOnly={false} isSubmitting={isLoading} action="create" />;
+    return <CommForm onSubmit={handleCreate} readOnly={false} isSubmitting={isLoading} action="create" orgNames={orgNames} />;
 }

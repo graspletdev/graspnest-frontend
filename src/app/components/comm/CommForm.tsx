@@ -62,9 +62,10 @@ export interface CommFormProps {
     isSubmitting?: boolean;
     onSubmit: (values: CommunityForm) => Promise<void>;
     action?: 'create' | 'edit' | 'view';
+    orgNames?: string[];
 }
 
-export function CommForm({ initialValues = {}, readOnly = false, onSubmit, isSubmitting = false, action = 'create' }: CommFormProps) {
+export function CommForm({ initialValues = {}, readOnly = false, onSubmit, isSubmitting = false, action = 'create', orgNames = [] }: CommFormProps) {
     const [form, setForm] = useState<CommunityForm>({
         commName: initialValues.commName || '',
         commType: initialValues.commType || '',
@@ -210,9 +211,57 @@ export function CommForm({ initialValues = {}, readOnly = false, onSubmit, isSub
                 <h2 className="font-semibold mb-2 text-gray-600">Organization Configuration</h2>
                 <hr className="mb-4 border-t border-gray-300" />
 
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-1 gap-4">
+                {/* <div className="mt-3 grid grid-cols-1 md:grid-cols-1 gap-4">
                     <FormInput label="Organization Name" name="orgName" value={form.orgName} onChange={handleChange} required readOnly={readOnly} />
-                </div>
+                </div> */}
+                {isCreate ? (
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-1 gap-4">
+                        {orgNames.length > 1 ? (
+                            // SuperAdmin: Multiple orgs available
+                            <div>
+                                <label className="block mb-1 font-semibold text-gray-600">
+                                    Organization Name<span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    name="orgName"
+                                    value={form.orgName}
+                                    onChange={handleChange}
+                                    className="w-full border border-gray-300 p-2 rounded"
+                                    required
+                                    disabled={readOnly} // respects readOnly flag (for view mode)
+                                >
+                                    <option value="">Select Organization</option>
+                                    {orgNames.map((orgName, idx) => (
+                                        <option key={idx} value={orgName}>
+                                            {orgName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        ) : (
+                            // OrgAdmin or only one org: show disabled dropdown (still standard for consistency)
+                            <div>
+                                <label className="block mb-1 font-semibold text-gray-600">
+                                    Organization Name<span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    name="orgName"
+                                    value={form.orgName}
+                                    onChange={handleChange}
+                                    className="w-full border border-gray-300 p-2 rounded bg-gray-100"
+                                    required
+                                    disabled
+                                >
+                                    <option value={orgNames[0]}>{orgNames[0]}</option>
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-1 gap-4">
+                        <FormInput label="Organization Name" name="orgName" value={form.orgName} onChange={handleChange} required readOnly={!isCreate} />
+                    </div>
+                )}
             </section>
             {!readOnly && (
                 <div className="flex">
