@@ -13,7 +13,7 @@ interface CommCreateClientProps {
     orgNames: string[];
 }
 
-export default function CommCreateClient({orgNames}: CommCreateClientProps) {
+export default function CommCreateClient({ orgNames }: CommCreateClientProps) {
     const router = useRouter();
     const { create, isLoading, error, mutate } = useCreateComm();
 
