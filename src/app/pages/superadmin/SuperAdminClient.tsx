@@ -13,6 +13,7 @@ import { useAdminDashboard } from '@/app/hooks/useDashboard';
 import { useSession, signOut } from 'next-auth/react';
 import { adminDashboardData } from '@/app/lib/admin';
 import { deleteOrg } from '@/app/lib/org';
+import AppLayout from '@/app/layouts/AppLayout';
 
 interface RoleItem {
     icon: React.ReactNode;
@@ -70,26 +71,6 @@ const rolesDetails: RoleItem[] = [
     },
 ];
 
-export function SidebarLogoutItem() {
-    return (
-        <li className="flex items-center space-x-2 rounded cursor-pointer hover:bg-[#1caec2] px-3 py-2">
-            <button onClick={() => signOut({ callbackUrl: '/login' })} className="flex items-center w-full text-left">
-                <FiLogOut className="text-xl shrink-0" />
-                <span className="ml-2">Logout</span>
-            </button>
-        </li>
-    );
-}
-
-export function SidebarMenu({ role }: { role: RoleItem }) {
-    return (
-        <li className="flex items-center space-x-2 rounded cursor-pointer hover:bg-[#1caec2] px-3 py-2">
-            <span className="text-xl shrink-0">{role.icon}</span>
-            <Link href={role.href}>{role.title}</Link>
-        </li>
-    );
-}
-
 export function QuickCreateSection({ roles }: { roles: RoleItem[] }) {
     return (
         <section className="mb-8">
@@ -133,7 +114,7 @@ export function TotalDetailsSection({ roles, totalCounts }: { roles: RoleItem[];
 }
 
 export default function SuperAdminClient({ initialData }: { initialData: adminDashboardData }) {
-    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const { data: sessionData } = useSession();
 
     // We are using custom hooks useDashboard.ts, as we can use function useDashboard() in other components
@@ -179,112 +160,95 @@ export default function SuperAdminClient({ initialData }: { initialData: adminDa
     }, [isError]);
 
     return (
-        <div className="font-inter flex h-screen bg-white text-black">
-            {/* Sidebar */}
-            {isSidebarOpen && (
-                <aside className="w-50 bg-black p-7 shadow-lg text-white">
-                    <nav>
-                        <ul className="space-y-6">
-                            <li className="flex items-center space-x-2">
-                                <MdSecurity className="text-xl" />
-                                <Link href="/super-admin">Dashboard</Link>
-                            </li>
-                            <hr className="border-t border-gray-600" />
-                            {rolesDetails.map((rolesDetail, idx) => (
-                                <SidebarMenu key={idx} role={rolesDetail} />
-                            ))}
-                            <SidebarLogoutItem />
-                        </ul>
-                    </nav>
-                </aside>
-            )}
-
-            {/* Main Content */}
-            <div className="flex-1 p-6">
-                {/* Header */}
-                <header className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                        <button onClick={() => setSidebarOpen(!isSidebarOpen)}>
-                            <FiMenu size={24} />
-                        </button>
-                        <h1 className="text-xl font-extrabold">Super Admin</h1>
-                    </div>
-
-                    <div className="flex items-center space-x-6 text-sm font-semibold">
-                        <select
-                            className="border border-gray-300 rounded px-1 py-1"
-                            value={selectedOrgName}
-                            onChange={(e) => setSelectedOrgName(e.target.value as string)}
-                        >
-                            <option value="all">Select Organization</option>
-                            {data?.adminOrgDetails.map((org, idx) => (
-                                <option key={idx} value={org.orgName}>
-                                    {org.orgName}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="flex items-center space-x-1">
-                            <span>Welcome, {sessionData?.user.name}</span>
+        <AppLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}>
+            <div className="font-inter flex flex-col bg-white text-black w-full">
+                {/* Main Content */}
+                <div className="flex-1 p-6">
+                    {/* Header */}
+                    <header className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-4">
+                            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                                <FiMenu size={24} />
+                            </button>
+                            <h1 className="text-xl font-extrabold">Super Admin</h1>
                         </div>
-                    </div>
-                </header>
 
-                {/* Total Details Section */}
-                <TotalDetailsSection roles={rolesDetails} totalCounts={data?.totals} />
-
-                {/* Quick Create Section */}
-                <QuickCreateSection roles={rolesDetails} />
-
-                {/* Organization Overview */}
-                <section>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold">Organization Overview</h2>
-                        {/* <input type="text" placeholder="Search Organization" className="border border-gray-300 rounded px-3 py-1" /> */}
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full border border-gray-300">
-                            <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="px-4 py-2 border-b">Organization</th>
-                                    <th className="px-4 py-2 border-b">Organization Admin</th>
-                                    <th className="px-4 py-2 border-b">Communities</th>
-                                    <th className="px-4 py-2 border-b">Landlords</th>
-                                    <th className="px-4 py-2 border-b">Residents</th>
-                                    <th className="px-4 py-2 border-b">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredOrgs.map((org, idx) => (
-                                    <tr key={idx} className="hover:bg-gray-100">
-                                        <td className="px-4 py-2 border-b text-center">{org.orgName}</td>
-                                        <td className="px-4 py-2 border-b text-center">
-                                            {org.orgAdminFirstName} {org.orgAdminLastName}
-                                        </td>
-                                        <td className="px-4 py-2 border-b text-center">{org.communitiesCount}</td>
-                                        <td className="px-4 py-2 border-b text-center">{org.landlordsCount}</td>
-                                        <td className="px-4 py-2 border-b text-center">{org.tenantsCount}</td>
-                                        <td className="px-4 py-2 border-b text-center space-x-3">
-                                            <Link
-                                                href={`/pages/organization/${org.orgId}/view`}
-                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center"
-                                            >
-                                                <FiEye className="mr-1" />
-                                            </Link>
-                                            <Link href={`/pages/organization/${org.orgId}/edit`} className="text-yellow-500 hover:text-yellow-600">
-                                                <FiEdit2 className="inline" />
-                                            </Link>
-                                            <button onClick={() => handleDelete(org.orgId)} className="text-red-600 hover:text-red-800">
-                                                <FiTrash2 className="inline" />
-                                            </button>
-                                        </td>
-                                    </tr>
+                        <div className="flex items-center space-x-6 text-sm font-semibold">
+                            <select
+                                className="border border-gray-300 rounded px-1 py-1"
+                                value={selectedOrgName}
+                                onChange={(e) => setSelectedOrgName(e.target.value as string)}
+                            >
+                                <option value="all">Select Organization</option>
+                                {data?.adminOrgDetails.map((org, idx) => (
+                                    <option key={idx} value={org.orgName}>
+                                        {org.orgName}
+                                    </option>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                            </select>
+                            <div className="flex items-center space-x-1">
+                                <span>Welcome, {sessionData?.user.name}</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Total Details Section */}
+                    <TotalDetailsSection roles={rolesDetails} totalCounts={data?.totals} />
+
+                    {/* Quick Create Section */}
+                    <QuickCreateSection roles={rolesDetails} />
+
+                    {/* Organization Overview */}
+                    <section>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-semibold">Organization Overview</h2>
+                            {/* <input type="text" placeholder="Search Organization" className="border border-gray-300 rounded px-3 py-1" /> */}
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full border border-gray-300">
+                                <thead>
+                                    <tr className="bg-gray-50">
+                                        <th className="px-4 py-2 border-b">Organization</th>
+                                        <th className="px-4 py-2 border-b">Organization Admin</th>
+                                        <th className="px-4 py-2 border-b">Communities</th>
+                                        <th className="px-4 py-2 border-b">Landlords</th>
+                                        <th className="px-4 py-2 border-b">Residents</th>
+                                        <th className="px-4 py-2 border-b">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredOrgs.map((org, idx) => (
+                                        <tr key={idx} className="hover:bg-gray-100">
+                                            <td className="px-4 py-2 border-b text-center">{org.orgName}</td>
+                                            <td className="px-4 py-2 border-b text-center">
+                                                {org.orgAdminFirstName} {org.orgAdminLastName}
+                                            </td>
+                                            <td className="px-4 py-2 border-b text-center">{org.communitiesCount}</td>
+                                            <td className="px-4 py-2 border-b text-center">{org.landlordsCount}</td>
+                                            <td className="px-4 py-2 border-b text-center">{org.tenantsCount}</td>
+                                            <td className="px-4 py-2 border-b text-center space-x-3">
+                                                <Link
+                                                    href={`/pages/organization/${org.orgId}/view`}
+                                                    className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+                                                >
+                                                    <FiEye className="mr-1" />
+                                                </Link>
+                                                <Link href={`/pages/organization/${org.orgId}/edit`} className="text-yellow-500 hover:text-yellow-600">
+                                                    <FiEdit2 className="inline" />
+                                                </Link>
+                                                <button onClick={() => handleDelete(org.orgId)} className="text-red-600 hover:text-red-800">
+                                                    <FiTrash2 className="inline" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
             </div>
-        </div>
+        </AppLayout>
     );
 }
